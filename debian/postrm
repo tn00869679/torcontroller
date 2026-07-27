@@ -1,0 +1,24 @@
+#!/bin/sh
+# If any error, exit.
+set -e
+
+case "$1" in
+    remove)
+        ;;
+    purge)
+        echo "Purging configuration files..."
+        # Remove user-modified configuration files with checks
+        [ -f /etc/torcontroller/torcontroller.yml ] && rm -f /etc/torcontroller/torcontroller.yml
+        [ -f /etc/sudoers.d/torcontroller ] && rm -f /etc/sudoers.d/torcontroller
+        [ -f /etc/tor/torrc ] && rm -f /etc/tor/torrc
+        [ -f /etc/privoxy/config ] && rm -f /etc/privoxy/config
+        # Remove systemd service files
+        [ -f /etc/systemd/system/tor.service ] && rm -f /etc/systemd/system/tor.service
+        [ -f /etc/systemd/system/privoxy.service ] && rm -f /etc/systemd/system/privoxy.service
+        echo "Configuration files purged."
+        ;;
+esac
+
+echo "postrm script fiinished."
+
+#DEBHELPLER#

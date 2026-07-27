@@ -1,0 +1,2 @@
+# Allow torcontroller to manage Tor and network settings
+%torcontroller ALL=(ALL) NOPASSWD: /bin/systemctl start tor, /bin/systemctl stop tor, /bin/systemctl restart tor, /sbin/iptables

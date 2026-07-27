@@ -1,0 +1,106 @@
+#!/bin/sh
+# If any error, exit. Fix in future
+set -e
+
+SYSTEM_SERVICE_DIR="/etc/systemd/system"
+TOR_CONFIG_DIR="/etc/tor"
+PRIVOXY_CONFIG_DIR="/etc/privoxy"
+SUDOERS_CONFIG_DIR="/etc/sudoers.d"
+TORCONTROLLER_CONFIG_DIR="/etc/torcontroller"
+
+echo "torcontroller postinst setting script..."
+# Place systemctl setting file.
+# The current version of torcontroller relies on systemctl to launch the tor and privoxy services.
+if [ ! -d "$SYSTEM_SERVICE_DIR" ]; then
+    echo "Configuration directory does not exist. Creating $SYSTEM_SERVICE_DIR..."
+    mkdir -p "$SYSTEM_SERVICE_DIR"
+    chmod 755 "$SYSTEM_SERVICE_DIR"
+fi
+
+if [ -f /etc/systemd/system/privoxy.service ]; then
+    echo "User-defined privoxy service found. Leaving existing file untouched."
+    echo "A new version of the configuration file is available: /etc/systemd/system/privoxy.service.dpkg-new"
+    echo "Please review and merge it into your existing configuration if necessary."
+    cp /usr/share/torcontroller/defaults/privoxy.service /etc/systemd/system/privoxy.service.dpkg-new
+else
+    echo "Installing default privoxy.service..."
+    cp /usr/share/torcontroller/defaults/privoxy.service /etc/systemd/system/privoxy.service
+fi
+
+if [ -f /etc/systemd/system/tor.service ]; then
+    echo "User-defined tor service found. Leaving existing file untouched."
+    echo "A new version of the configuration file is available: /etc/systemd/system/tor.service.dpkg-new"
+    echo "Please review and merge it into your existing configuration if necessary."
+    cp /usr/share/torcontroller/defaults/tor.service /etc/systemd/system/tor.service.dpkg-new
+else
+    echo "Installing default tor.service..."
+    cp /usr/share/torcontroller/defaults/tor.service /etc/systemd/system/tor.service
+fi
+
+if [ ! -d "$TOR_CONFIG_DIR" ]; then
+    echo "Configuration directory does not exist. Creating $TOR_CONFIG_DIR..."
+    mkdir -p "$TOR_CONFIG_DIR"
+    chmod 755 "$TOR_CONFIG_DIR"
+fi
+
+if [ -f /etc/tor/torrc ]; then 
+    echo "User-defined torrc found. Leaving existing file untouched."
+    echo "A new version of the configuration file is available: /etc/tor/torrc.dpkg-new"
+    echo "Please review and merge it into your existing configuration if necessary."
+    cp /usr/share/torcontroller/defaults/tor/torrc /etc/tor/torrc.dpkg-new
+else
+    cp /usr/share/torcontroller/defaults/tor/torrc /etc/tor/torrc
+    torcontroller newpassword
+    echo "[INFO] Default Tor password has been set to a randomly generated value."
+    echo "[INFO] Please use torcontroller cli 'torcontroller newpassword <your-tor-newpassword>' to change it if needed."
+fi
+
+if [ ! -d "$PRIVOXY_CONFIG_DIR" ]; then
+    echo "Configuration directory does not exist. Creating $PRIVOXY_CONFIG_DIR..."
+    mkdir -p "$PRIVOXY_CONFIG_DIR"
+    chmod 755 "$PRIVOXY_CONFIG_DIR"
+fi
+
+if [ -f /etc/privoxy/config ]; then
+    echo "User-defined privoxy config found. Leaving existing file untouched."
+    echo "A new version of the configuration file is available: /etc/privoxy/config.dpkg-new"
+    echo "Please review and merge it into your existing configuration if necessary."
+    cp /usr/share/torcontroller/defaults/privoxy/config /etc/privoxy/config.dpkg-new
+else
+    cp /usr/share/torcontroller/defaults/privoxy/config /etc/privoxy/config
+fi
+
+if [ ! -d "$SUDOERS_CONFIG_DIR" ]; then
+    echo "Configuration directory does not exist. Creating $SUDOERS_CONFIG_DIR..."
+    mkdir -p "$SUDOERS_CONFIG_DIR"
+    chmod 755 "$SUDOERS_CONFIG_DIR"
+fi
+
+if [ -f /etc/sudoers.d/torcontroller ]; then
+    echo "User-defined sudoers.d torcontroller found. Leaving existing file untouched."
+    echo "A new version of the configuration file is available: /etc/sudoers.d/torcontroller.dpkg-new"
+    echo "Please review and merge it into your existing configuration if necessary."
+    cp /usr/share/torcontroller/defaults/sudoers.d/torcontroller /etc/sudoers.d/torcontroller.dpkg-new
+else
+    cp /usr/share/torcontroller/defaults/sudoers.d/torcontroller /etc/sudoers.d/torcontroller
+    chmod 0440 /etc/sudoers.d/torcontroller
+fi
+
+if [ ! -d "$TORCONTROLLER_CONFIG_DIR" ]; then
+    echo "Configuration directory does not exist. Creating $TORCONTROLLER_CONFIG_DIR..."
+    mkdir -p "$TORCONTROLLER_CONFIG_DIR"
+    chmod 755 "$TORCONTROLLER_CONFIG_DIR"
+fi
+
+if [ -f /etc/torcontroller/torcontroller.yml ]; then
+    echo "User-defined torcontroller yaml found. Leaving existing file untouched."
+    echo "A new version of the configuration file is available: /etc/torcontroller/torcontroller.yml.dpkg-new"
+    echo "Please review and merge it into your existing configuration if necessary."
+    cp /usr/share/torcontroller/defaults/torcontroller.yml /etc/torcontroller/torcontroller.yml.dpkg-new
+else
+    cp /usr/share/torcontroller/defaults/torcontroller.yml /etc/torcontroller/torcontroller.yml
+fi
+
+echo "postinst script finished."
+
+#DEBHELPLER#

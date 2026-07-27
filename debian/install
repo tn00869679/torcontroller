@@ -1,0 +1,7 @@
+torcontroller usr/bin
+initializer/templates/torcontroller.yml usr/share/torcontroller/defaults
+initializer/templates/tor.service usr/share/torcontroller/defaults
+initializer/templates/privoxy.service usr/share/torcontroller/defaults
+initializer/templates/tor/torrc usr/share/torcontroller/defaults/tor
+initializer/templates/privoxy/config usr/share/torcontroller/defaults/privoxy
+initializer/templates/sudoers.d/torcontroller usr/share/torcontroller/defaults/sudoers.d

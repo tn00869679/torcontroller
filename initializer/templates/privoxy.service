@@ -1,0 +1,15 @@
+[Unit]
+Description=Privoxy Web Proxy With Advanced Filtering Capabilities
+After=network.target
+
+[Service]
+User=root
+Group=root
+ExecStart=/usr/sbin/privoxy --no-daemon /etc/privoxy/config
+StandardOutput=syslog
+StandardError=syslog
+ExecReload=/bin/kill -HUP ${MAINPID}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

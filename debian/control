@@ -1,0 +1,24 @@
+Source: torcontroller
+Section: net
+Priority: optional
+Maintainer: Sei <seikanchintw@gmail.com>
+Build-Depends: debhelper-compat (= 12)
+Standards-Version: 4.6.2
+Homepage: https://github.com/Seicrypto/torcontroller
+
+Package: torcontroller
+Architecture: amd64 arm64
+Depends: ${shlibs:Depends},
+         privoxy(>= 3.0.28), privoxy(<< 3.1),
+         procps,
+         systemctl (>= 1.4),
+         tor(>= 0.4.2.7), tor(<< 0.5),
+         iptables,
+         sudo,
+         ${misc:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Description: This package is a simple cli controller to switch network 
+ to provide a CLI for managing and switching your network through 
+ the Tor network. It integrates Tor, Privoxy, and system utilities to help 
+ protect your identity and enhance your privacy. Ideal for use in Docker or 
+ lightweight environments.

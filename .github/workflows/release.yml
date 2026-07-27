@@ -1,0 +1,115 @@
+name: CI then Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggered when a hashtag is pushed
+
+jobs:
+  build-and-release:
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Actions Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup QEMU for ARM
+      run: |
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+    - name: Ensure script is executable
+      run: |
+        chmod +x ./scripts/build_and_sign.sh
+
+    - name: Create private-key.asc
+      run: |
+        echo "${{ secrets.GPG_PRIVATE_KEY }}" > private-key.asc
+
+    - name: Create .env file
+      env:
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
+        ARCH: ${{ matrix.arch }}
+      run: |
+        echo "GPG_PASSPHRASE=${GPG_PASSPHRASE}" > .env
+        echo "GPG_PUBLIC_KEY=${GPG_PUBLIC_KEY}" >> .env
+        echo "ARCH=${ARCH}" >> .env
+
+    - name: Pull and run container for ${{ matrix.arch }}
+      run: |
+        docker run -dit \
+        --platform linux/${{ matrix.arch }} \
+        -v $GITHUB_WORKSPACE:/workspace \
+        -w /workspace \
+        --env-file .env \
+        --name torcontroller_build_${{ matrix.arch }} \
+        ghcr.io/seicrypto/torcontroller/torcontroller-build:dev \
+        tail -f /dev/null
+
+    - name: Execute script in container
+      run: |
+        docker exec torcontroller_build_${{ matrix.arch }} bash -c "/workspace/scripts/build_and_sign.sh"
+
+    - name: Load environment variables
+      run: |
+        docker cp torcontroller_build_${{ matrix.arch }}:/workspace/container_up_env $GITHUB_WORKSPACE/container_up_env
+        cat $GITHUB_WORKSPACE/container_up_env >> $GITHUB_ENV
+
+    - name: Copy .deb file from container
+      run: |
+        docker cp torcontroller_build_${{ matrix.arch }}:/${{ env.deb_file_name }} $GITHUB_WORKSPACE/${{ env.deb_file_name }}
+
+    - name: Remove container
+      run: |
+        docker rm -f torcontroller_build_${{ matrix.arch }}
+
+    - name: Verify .deb file existence
+      run: |
+        echo "Checking for file: $GITHUB_WORKSPACE/${{ env.deb_file_name }}"
+        ls -l $GITHUB_WORKSPACE/${{ env.deb_file_name }}
+        echo "built_debian=$GITHUB_WORKSPACE/${{ env.deb_file_name }}" >> $GITHUB_ENV
+
+    - name: Ensure GitHub Release
+      id: ensure_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: |
+        if gh release view ${{ github.ref_name }} --repo ${{ github.repository }} > /dev/null 2>&1; then
+          echo "release_exists=true" >> $GITHUB_ENV
+          release=$(gh release view ${{ github.ref_name }} --repo ${{ github.repository }} --json uploadUrl --jq .uploadUrl)
+          echo "upload_url=$release" >> $GITHUB_ENV
+        else
+          echo "release_exists=false" >> $GITHUB_ENV
+        fi
+
+    - name: Debug release_exists
+      run: |
+        echo "Release exists: ${{ env.release_exists }}"
+        echo "Upload URL: ${{ env.upload_url }}"
+
+    - name: Create GitHub Release if not exists
+      if: env.release_exists == 'false'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        body: |
+          Automatic release of .deb package for ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+
+    - name: Upload .deb file
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url || env.upload_url }}
+        asset_path: ${{ env.built_debian }}
+        asset_name: torcontroller_${{ github.ref_name }}_${{ matrix.arch }}.deb
+        asset_content_type: application/octet-stream

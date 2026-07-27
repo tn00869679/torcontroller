@@ -1,0 +1,24 @@
+torcontroller (1.1.0) unstable; urgency=medium
+
+  * Release version 1.1.0
+  * Refactored command line with golang.
+  * Build unix socket as cli management device.
+  * Redirection of environmental network through tor.
+
+ -- ShengHan Chen <seikanchintw@gmail.com>  Thu, 02 Jan 2025 13:38:11 +0000
+
+torcontroller (1.0.1) unstable; urgency=high
+
+  * Release version 1.0.1
+  * Fixed issue postinst wrong case check in privoxy.
+  * Changed to native package source. Using dquilt was wrong.
+
+ -- ShengHan Chen <seikanchintw@gmail.com>  Fri, 11 Aug 2023 09:08:43 +0000
+
+torcontroller (1.0-1) unstable; urgency=low
+
+  * Release version 1.0-1
+  * including basic features:
+  * start, stop, resetpassword, and so on.
+
+ -- ShengHan Chen <seikanchintw@gmail.com>  Sat, 15 Jul 2023 17:10:34 +0000

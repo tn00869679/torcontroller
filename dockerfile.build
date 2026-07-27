@@ -1,0 +1,55 @@
+FROM debian:bullseye
+WORKDIR /app
+
+RUN apt update && apt install -y \
+    procps\
+    build-essential \
+    devscripts \
+    debhelper \
+    gnupg \
+    dpkg-sig\
+    dh-make \
+    fakeroot \
+    lintian \
+    git \
+    curl\
+    sudo
+
+# Ensure that the GPG Signature Tool is available
+RUN apt install -y gnupg2
+
+RUN apt install -y gcc-aarch64-linux-gnu\
+    g++-aarch64-linux-gnu
+
+# ------For local test------
+# ARG GO_VERSION=1.21.13
+# ARG GO_ARCH=linux-arm64
+# RUN curl -LO https://golang.org/dl/go${GO_VERSION}.${GO_ARCH}.tar.gz && \
+#     tar -C /usr/local -xzf go${GO_VERSION}.${GO_ARCH}.tar.gz && \
+#     rm go${GO_VERSION}.${GO_ARCH}.tar.gz
+
+# ENV PATH="/usr/local/go/bin:${PATH}"
+
+# COPY . .
+# -------------------------
+
+# // Simulation stop service failure
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+CMD ["bash"]
+
+# my notes
+# Build and push image
+# docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/seicrypto/torcontroller/torcontroller-build:dev -f dockerfile.build --push .
+
+# Build for local test
+# docker build -t torcontroller-build:local -f dockerfile.build .
+# docker run --cap-add=NET_ADMIN --cap-add=NET_RAW --name torcontroller-build-test -dit -p 9050:9050 -p 9051:9051 torcontroller-build:local
+
+# Test CI tag command:
+# git tag v.dev
+# git push origin v.dev
+
+# Remove Test CI tag command:
+# git tag -d v.dev
+# git push origin --delete v.dev
