@@ -3,7 +3,7 @@ package controller_test
 import (
 	"testing"
 
-	"github.com/Seicrypto/torcontroller/internal/controller"
+	"github.com/tn00869679/torcontroller/internal/controller"
 )
 
 func TestRealCommandRunner_Run(t *testing.T) {

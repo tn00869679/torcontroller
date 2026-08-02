@@ -1,10 +1,10 @@
 Source: torcontroller
 Section: net
 Priority: optional
-Maintainer: Sei <seikanchintw@gmail.com>
+Maintainer: Darren <tn00869679@gmail.com>
 Build-Depends: debhelper-compat (= 12)
 Standards-Version: 4.6.2
-Homepage: https://github.com/Seicrypto/torcontroller
+Homepage: https://github.com/tn00869679/torcontroller
 
 Package: torcontroller
 Architecture: amd64 arm64

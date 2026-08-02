@@ -19,4 +19,4 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # my notes
 # Build and push image
-# docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/seicrypto/torcontroller/torcontroller-test-env:dev -f dockerfile.testenv --push .
+# docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/tn00869679/torcontroller/torcontroller-test-env:dev -f dockerfile.testenv --push .

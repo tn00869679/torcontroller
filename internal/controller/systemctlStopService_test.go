@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Seicrypto/torcontroller/internal/controller"
+	"github.com/tn00869679/torcontroller/internal/controller"
 )
 
 func TestStopServiceFactory(t *testing.T) {

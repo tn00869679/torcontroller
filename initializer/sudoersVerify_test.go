@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Seicrypto/torcontroller/initializer"
+	"github.com/tn00869679/torcontroller/initializer"
 )
 
 func TestSudoersFileVerify(t *testing.T) {

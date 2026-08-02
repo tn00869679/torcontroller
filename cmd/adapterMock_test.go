@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Seicrypto/torcontroller/internal/singleton/logger"
+	"github.com/tn00869679/torcontroller/internal/singleton/logger"
 )
 
 // MockSocket is a mock implementation of ConnectionAdapter.

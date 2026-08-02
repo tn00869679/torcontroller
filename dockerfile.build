@@ -40,7 +40,7 @@ CMD ["bash"]
 
 # my notes
 # Build and push image
-# docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/seicrypto/torcontroller/torcontroller-build:dev -f dockerfile.build --push .
+# docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/tn00869679/torcontroller/torcontroller-build:dev -f dockerfile.build --push .
 
 # Build for local test
 # docker build -t torcontroller-build:local -f dockerfile.build .

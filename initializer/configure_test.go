@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Seicrypto/torcontroller/initializer"
+	"github.com/tn00869679/torcontroller/initializer"
 	"github.com/stretchr/testify/assert"
 )
 

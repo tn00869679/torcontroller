@@ -1,0 +1,22 @@
+torcontroller
+Copyright 2026 Darren <tn00869679@gmail.com>
+
+This product is a derivative work based on:
+
+    torcontroller
+    Copyright 2023 Seikan Chin <seikanchintw@gmail.com>
+    https://github.com/Seicrypto/torcontroller
+    Licensed under the Apache License, Version 2.0
+
+Modifications to the original work, beginning 2026-08-02, were made by
+Darren <tn00869679@gmail.com> and are likewise licensed under the
+Apache License, Version 2.0.
+
+Summary of modifications:
+
+  - 2026-08-02  Project identity retargeted from Seicrypto to
+                tn00869679: Go module path, CI container registry
+                namespace (ghcr.io), Debian packaging metadata, and
+                documentation links. No functional change.
+
+See the LICENSE file for the full text of the Apache License, Version 2.0.

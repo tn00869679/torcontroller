@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Seicrypto/torcontroller/initializer"
+	"github.com/tn00869679/torcontroller/initializer"
 )
 
 func TestVerifyTorrcConfig(t *testing.T) {

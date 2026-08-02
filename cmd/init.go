@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/Seicrypto/torcontroller/initializer"
-	"github.com/Seicrypto/torcontroller/internal/controller"
+	"github.com/tn00869679/torcontroller/initializer"
+	"github.com/tn00869679/torcontroller/internal/controller"
 	"github.com/spf13/cobra"
 )
 

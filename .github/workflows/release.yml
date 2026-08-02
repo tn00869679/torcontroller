@@ -46,7 +46,7 @@ jobs:
         -w /workspace \
         --env-file .env \
         --name torcontroller_build_${{ matrix.arch }} \
-        ghcr.io/seicrypto/torcontroller/torcontroller-build:dev \
+        ghcr.io/tn00869679/torcontroller/torcontroller-build:dev \
         tail -f /dev/null
 
     - name: Execute script in container

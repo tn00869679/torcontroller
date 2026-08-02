@@ -3,7 +3,7 @@ package initializer
 import (
 	"fmt"
 
-	"github.com/Seicrypto/torcontroller/internal/singleton/configuration"
+	"github.com/tn00869679/torcontroller/internal/singleton/configuration"
 	"gopkg.in/yaml.v3"
 )
 

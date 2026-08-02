@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Seicrypto/torcontroller/cmd"
+	"github.com/tn00869679/torcontroller/cmd"
 )
 
 func main() {

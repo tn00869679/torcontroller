@@ -10,7 +10,7 @@ jobs:
   run-test:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/seicrypto/torcontroller/torcontroller-test-env:dev
+      image: ghcr.io/tn00869679/torcontroller/torcontroller-test-env:dev
 
     steps:
     - name: Actions Checkout

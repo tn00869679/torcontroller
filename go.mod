@@ -1,4 +1,4 @@
-module github.com/Seicrypto/torcontroller
+module github.com/tn00869679/torcontroller
 
 go 1.21.13
 

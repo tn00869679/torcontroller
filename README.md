@@ -1,10 +1,10 @@
 # torcontroller
 
-[![GitHub release](https://img.shields.io/github/release/Seicrypto/torcontroller.svg)](https://github.com/Seicrypto/torcontroller/releases/latest)
-[![Test](https://github.com/Seicrypto/torcontroller/actions/workflows/test.yml/badge.svg)](https://github.com/Seicrypto/torcontroller/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/Seicrypto/torcontroller/branch/main/graph/badge.svg)](https://codecov.io/gh/Seicrypto/torcontroller)
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FSeicrypto%2Ftorcontroller&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://github.com/Seicrypto/torcontroller)
-[![Github All Releases](https://img.shields.io/github/downloads/Seicrypto/torcontroller/total.svg?color=87CEEB)](https://github.com/Seicrypto/torcontroller)
+[![GitHub release](https://img.shields.io/github/release/tn00869679/torcontroller.svg)](https://github.com/tn00869679/torcontroller/releases/latest)
+[![Test](https://github.com/tn00869679/torcontroller/actions/workflows/test.yml/badge.svg)](https://github.com/tn00869679/torcontroller/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/tn00869679/torcontroller/branch/main/graph/badge.svg)](https://codecov.io/gh/tn00869679/torcontroller)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Ftn00869679%2Ftorcontroller&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://github.com/tn00869679/torcontroller)
+[![Github All Releases](https://img.shields.io/github/downloads/tn00869679/torcontroller/total.svg?color=87CEEB)](https://github.com/tn00869679/torcontroller)
 
 TorController is a CLI tool designed for [Tor VPN](https://www.torproject.org/) users that integrates commonly used features to make it easier for you to redirect and control your network through Tor.
 
@@ -14,11 +14,19 @@ TorController is a CLI tool designed for [Tor VPN](https://www.torproject.org/) 
 - **Speed Requirements**: Set minimum connection speeds for stability. [More](./docs/setting.md)
 - **CLI Control**: Simple and efficient command-line operations.
 
-If you are not reading this on github, please go to <https://github.com/Seicrypto/torcontroller>
+If you are not reading this on github, please go to <https://github.com/tn00869679/torcontroller>
 Read more
 
 Japanese README:
 [日本語説明こちら](./READMEJP.md)
+
+## Fork Notice
+
+This repository is a fork of [Seicrypto/torcontroller](https://github.com/Seicrypto/torcontroller)
+by Seikan Chin, licensed under the Apache License 2.0. It is maintained
+independently by [@tn00869679](https://github.com/tn00869679) and is **not** an
+official release of the original project. Files have been modified from the
+original — see [NOTICE](./NOTICE) for the list of changes.
 
 ## QuickStart
 
@@ -33,11 +41,11 @@ Step1. Download and install
 apt-get update
 
 # Intel / AMD cpu:
-wget https://github.com/Seicrypto/torcontroller/releases/download/v1.1.0/torcontroller_v1.1.0_amd64.deb
+wget https://github.com/tn00869679/torcontroller/releases/download/v1.1.0/torcontroller_v1.1.0_amd64.deb
 apt-get install -y ./torcontroller_v1.1.0_amd64.deb
 
 # ARM cpu:
-# wget https://github.com/Seicrypto/torcontroller/releases/download/v1.1.0/torcontroller_v1.1.0_arm64.deb
+# wget https://github.com/tn00869679/torcontroller/releases/download/v1.1.0/torcontroller_v1.1.0_arm64.deb
 # apt-get install -y ./torcontroller_v1.1.0_arm64.deb
 
 # * How to know your machine using ARM or Intel / AMD

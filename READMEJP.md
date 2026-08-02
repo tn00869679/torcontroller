@@ -1,10 +1,10 @@
 # torcontroller Japanese 日本語説明
 
-[![GitHub release](https://img.shields.io/github/release/Seicrypto/torcontroller.svg)](https://github.com/Seicrypto/torcontroller/releases/latest)
-[![Test](https://github.com/Seicrypto/torcontroller/actions/workflows/test.yml/badge.svg)](https://github.com/Seicrypto/torcontroller/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/Seicrypto/torcontroller/branch/main/graph/badge.svg)](https://codecov.io/gh/Seicrypto/torcontroller)
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FSeicrypto%2Ftorcontroller&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://github.com/Seicrypto/torcontroller)
-[![Github All Releases](https://img.shields.io/github/downloads/Seicrypto/torcontroller/total.svg?color=87CEEB)](https://github.com/Seicrypto/torcontroller)
+[![GitHub release](https://img.shields.io/github/release/tn00869679/torcontroller.svg)](https://github.com/tn00869679/torcontroller/releases/latest)
+[![Test](https://github.com/tn00869679/torcontroller/actions/workflows/test.yml/badge.svg)](https://github.com/tn00869679/torcontroller/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/tn00869679/torcontroller/branch/main/graph/badge.svg)](https://codecov.io/gh/tn00869679/torcontroller)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Ftn00869679%2Ftorcontroller&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://github.com/tn00869679/torcontroller)
+[![Github All Releases](https://img.shields.io/github/downloads/tn00869679/torcontroller/total.svg?color=87CEEB)](https://github.com/tn00869679/torcontroller)
 
 TorControllerは[Tor VPN](https://www.torproject.org/)ユーザのために設計されたCLIツールで、よく使われる機能を統合し、Torを介したネットワークのリダイレクトと制御を簡単にします。
 
@@ -13,6 +13,13 @@ TorControllerは[Tor VPN](https://www.torproject.org/)ユーザのために設�
 - **Linux互換性**： Dockerを含むLinuxシステム上で動作します。
 - **速度要件**： 安定性のために最低接続速度を設定します。[詳細](./docs/setting.md)
 - **CLIコントロール**： シンプルで効率的なコマンドライン操作。
+
+## フォークについて
+
+本リポジトリは、Seikan Chin 氏による [Seicrypto/torcontroller](https://github.com/Seicrypto/torcontroller)
+を Apache License 2.0 のもとでフォークしたものです。[@tn00869679](https://github.com/tn00869679)
+が独自に保守しており、オリジナルプロジェクトの公式リリースでは**ありません**。
+オリジナルからの変更点は [NOTICE](./NOTICE) を参照してください。
 
 ## クイック・スタート
 
@@ -27,11 +34,11 @@ LinuxのDebian / Ubuntu以外でtorcontrollerが使えるようになりまし�
 apt-get update
 
 # Intel / AMD cpu:
-wget https://github.com/Seicrypto/torcontroller/releases/download/v1.1.0/torcontroller_v1.1.0_amd64.deb
+wget https://github.com/tn00869679/torcontroller/releases/download/v1.1.0/torcontroller_v1.1.0_amd64.deb
 apt-get install -y ./torcontroller_v1.1.0_amd64.deb
 
 # ARM cpu:
-# wget https://github.com/Seicrypto/torcontroller/releases/download/v1.1.0/torcontroller_v1.1.0_arm64.deb
+# wget https://github.com/tn00869679/torcontroller/releases/download/v1.1.0/torcontroller_v1.1.0_arm64.deb
 # apt-get install -y ./torcontroller_v1.1.0_arm64.deb
 
 # * ARMまたはIntel / AMDを使用しているマシンを知る方法

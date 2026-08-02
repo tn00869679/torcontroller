@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Seicrypto/torcontroller/internal/controller"
-	"github.com/Seicrypto/torcontroller/internal/singleton/configuration"
-	"github.com/Seicrypto/torcontroller/internal/singleton/logger"
+	"github.com/tn00869679/torcontroller/internal/controller"
+	"github.com/tn00869679/torcontroller/internal/singleton/configuration"
+	"github.com/tn00869679/torcontroller/internal/singleton/logger"
 	"github.com/spf13/cobra"
 )
 

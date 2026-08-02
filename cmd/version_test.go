@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/Seicrypto/torcontroller/cmd"
+	"github.com/tn00869679/torcontroller/cmd"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )

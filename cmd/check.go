@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/Seicrypto/torcontroller/initializer"
+	"github.com/tn00869679/torcontroller/initializer"
 	"github.com/spf13/cobra"
 )
 

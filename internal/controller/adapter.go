@@ -8,8 +8,8 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/Seicrypto/torcontroller/internal/singleton/configuration"
-	"github.com/Seicrypto/torcontroller/internal/singleton/logger"
+	"github.com/tn00869679/torcontroller/internal/singleton/configuration"
+	"github.com/tn00869679/torcontroller/internal/singleton/logger"
 )
 
 type CommandHandler struct {

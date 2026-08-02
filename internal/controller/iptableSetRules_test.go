@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Seicrypto/torcontroller/internal/controller"
+	"github.com/tn00869679/torcontroller/internal/controller"
 )
 
 // TestApplyIptablesRulesFactory tests the ApplyIptablesRulesFactory method.
