@@ -16,3 +16,13 @@ debhelper-build-stamp
 # GitHub Container Registry (GHCR)
 !dockerfile.testenv
 !dockerfile.build
+
+# Secrets. release.yml writes .env and private-key.asc into the workspace at
+# build time, and scripts/build_and_sign.sh reads them from there. Never commit.
+.env
+.env.*
+*.asc
+*.gpg
+*.key
+*.pem
+container_up_env
