@@ -1,61 +1,72 @@
-# Release Pipeline Setup
+# Release Pipeline 設定
 
-One-time bootstrap for this fork's CI/CD. Nothing here is stored in the repo —
-every item below lives in your GitHub account or repository secrets.
+本專案 CI/CD 的一次性初始設定。以下沒有任何東西會存進 repo — 每一項都放在你的
+GitHub 帳號或 repository secrets 裡。
 
-Repository: `tn00869679/torcontroller`
+Repository：`tn00869679/torcontroller`
 
 ---
 
-## 1. GPG signing key
+## 1. GPG 簽章金鑰
 
-`.github/workflows/release.yml` signs the `.deb` via `scripts/build_and_sign.sh`.
-The script hard-fails (`set -e`) if the key is absent, so the release job cannot
-run without this.
+`.github/workflows/release.yml` 透過 `scripts/build_and_sign.sh` 對 `.deb` 簽章。
+該腳本是 `set -e`，找不到金鑰會直接中止，所以**沒有這把金鑰就無法發布 release**。
 
 ```bash
-# Generate — choose RSA 4096. A passphrase is required (the script feeds one).
+# 產生金鑰 — 選 RSA 4096。必須設 passphrase（腳本會餵一組進去）。
 gpg --full-generate-key
 
-# Find the key ID
+# 查出 key ID
 gpg --list-secret-keys --keyid-format=long
 #   sec   rsa4096/ABCD1234EF567890 2026-08-02 [SC]
-#         <-- long key ID is ABCD1234EF567890
+#         <-- long key ID 就是 ABCD1234EF567890
 
-# Export the private key in ASCII armor
-gpg --armor --export-secret-keys ABCD1234EF567890 > private-key.asc
+# 以 ASCII armor 格式匯出私鑰。
+# 注意輸出路徑在 repo 之外 — 見下方警告。
+gpg --armor --export-secret-keys ABCD1234EF567890 > ~/torcontroller-gpg-private.asc
 ```
 
-Add three repository secrets (Settings → Secrets and variables → Actions):
+> **絕對不要把私鑰匯出到這個 repo 的目錄裡。** 本 repo 是公開的。
+> `.gitignore` 已經擋掉 `*.asc` / `.env` / `*.key` 等樣式，但別依賴它當唯一防線 —
+> 匯出到 `~` 底下，貼進 GitHub secret 之後立刻刪除。
+> （`release.yml` 會在 CI 執行期間自行於 workspace 產生 `.env` 與 `private-key.asc`，
+> 那是 runner 上的暫時檔案，跟你本機無關。）
 
-| Secret | Value |
+到 Settings → Secrets and variables → Actions 新增三個 repository secret：
+
+| Secret | 內容 |
 |---|---|
-| `GPG_PRIVATE_KEY` | full contents of `private-key.asc`, including the `-----BEGIN/END-----` lines |
-| `GPG_PASSPHRASE` | the passphrase you chose |
-| `GPG_PUBLIC_KEY` | **the key ID / fingerprint**, e.g. `ABCD1234EF567890` |
+| `GPG_PRIVATE_KEY` | `~/torcontroller-gpg-private.asc` 的完整內容，含頭尾的 `-----BEGIN/END-----` 行 |
+| `GPG_PASSPHRASE` | 你設定的 passphrase |
+| `GPG_PUBLIC_KEY` | **key ID / fingerprint**，例如 `ABCD1234EF567890` |
 
-> **Gotcha:** despite the name, `GPG_PUBLIC_KEY` is *not* an armored public key.
-> `build_and_sign.sh` uses it two ways — `gpg --list-keys \| grep -q "$GPG_PUBLIC_KEY"`
-> and `dpkg-buildpackage -k"$GPG_PUBLIC_KEY"` — both of which want a key identifier.
-> Pasting an armored block here makes the job fail at the grep check.
+> **陷阱**：名字雖然叫 `GPG_PUBLIC_KEY`，但它**不是** armored 公鑰。
+> `build_and_sign.sh` 有兩處用到它 — `gpg --list-keys \| grep -q "$GPG_PUBLIC_KEY"`
+> 以及 `dpkg-buildpackage -k"$GPG_PUBLIC_KEY"` — 兩者要的都是金鑰識別碼。
+> 貼 armored 區塊進去會卡在 grep 那一關直接失敗。
 
-Delete `private-key.asc` from disk once the secret is saved.
+三個 secret 都存好之後，立刻刪掉本機的匯出檔：
+
+```bash
+shred -u ~/torcontroller-gpg-private.asc 2>/dev/null || rm -P ~/torcontroller-gpg-private.asc 2>/dev/null || rm ~/torcontroller-gpg-private.asc
+```
+
+私鑰仍在你的 GPG keyring 裡（`gpg --list-secret-keys` 查得到），刪掉的只是匯出的副本。
 
 ---
 
 ## 2. GHCR container images
 
-CI pulls two images. They must exist under **your** namespace and be readable by
-Actions.
+CI 會拉兩個 image。它們必須存在於**你的** namespace 底下，而且 Actions 讀得到。
 
-Create a PAT (Settings → Developer settings → Personal access tokens → classic)
-with scope `write:packages` (which implies `read:packages`).
+先建立 PAT（Settings → Developer settings → Personal access tokens → classic），
+scope 勾 `write:packages`（會自動含 `read:packages`）。
 
 ```bash
 export CR_PAT=<your token>
 echo "$CR_PAT" | docker login ghcr.io -u tn00869679 --password-stdin
 
-docker buildx create --use   # once, if you have no builder yet
+docker buildx create --use   # 若還沒有 builder，執行一次即可
 
 docker buildx build --platform linux/amd64,linux/arm64 \
   -t ghcr.io/tn00869679/torcontroller/torcontroller-build:dev \
@@ -66,41 +77,40 @@ docker buildx build --platform linux/amd64,linux/arm64 \
   -f dockerfile.testenv . --push
 ```
 
-Then, **for each package** at `https://github.com/users/tn00869679/packages`:
+推完之後，到 `https://github.com/users/tn00869679/packages`，**兩個 package 都要**：
 
-1. Package settings → **Change visibility → Public**.
-2. Package settings → **Manage Actions access** → add the `torcontroller`
-   repository with at least `Read` role.
+1. Package settings → **Change visibility → Public**。
+2. Package settings → **Manage Actions access** → 加入 `torcontroller` repository，
+   權限至少 `Read`。
 
-> **Gotcha:** GHCR packages are **private by default**. `test.yml` declares the
-> test image as a job-level `container:` and performs no `docker login`, so a
-> private image makes every CI run fail before the first step. Step 1 above is
-> not optional.
+> **陷阱**：GHCR package **預設是 private**。`test.yml` 把 test image 宣告成
+> job 層級的 `container:`，而且完全沒有 `docker login` 步驟 — image 只要是 private，
+> 每次 CI 都會在跑到第一個 step 之前就掛掉。上面第 1 點不是可選項。
 
-> **Recommended:** `:dev` is a mutable tag. Also push an immutable one
-> (`-t ghcr.io/.../torcontroller-build:2026-08-02`) and pin the workflows to it,
-> so a future rebuild of `:dev` cannot silently change CI behaviour underneath you.
+> **建議**：`:dev` 是 mutable tag。同時多推一個不可變的 tag
+>（`-t ghcr.io/.../torcontroller-build:2026-08-02`）並讓 workflow 釘在那個 tag 上，
+> 這樣日後重建 `:dev` 才不會在你不知情的狀況下改變 CI 行為。
 
 ---
 
 ## 3. Release token
 
-`release.yml` uses `secrets.PAT_TOKEN` to create the GitHub Release and upload
-assets. Create a classic PAT with the `repo` scope and store it as `PAT_TOKEN`.
+`release.yml` 用 `secrets.PAT_TOKEN` 來建立 GitHub Release 並上傳檔案。
+建立一個 scope 為 `repo` 的 classic PAT，存成 `PAT_TOKEN`。
 
-The built-in `GITHUB_TOKEN` would also work for same-repo releases; the workflow
-was written against a PAT, so keep it consistent unless you edit the workflow.
+同一個 repo 的 release 其實用內建的 `GITHUB_TOKEN` 也可以；但這份 workflow 當初
+是照 PAT 寫的，除非你要改 workflow，否則就沿用 PAT 保持一致。
 
 ---
 
-## 4. Codecov (optional, non-blocking)
+## 4. Codecov（選用，不影響 CI 成敗）
 
-The badges in `README.md` / `READMEJP.md` point at
-`codecov.io/gh/tn00869679/torcontroller` and stay broken until you enable it.
+`README.md` / `READMEJP.md` 裡的 badge 指向
+`codecov.io/gh/tn00869679/torcontroller`，在你啟用之前都會是破圖。
 
-1. Sign in at <https://codecov.io> with GitHub and add the repository.
-2. Copy the upload token into the `CODECOV_TOKEN` repository secret.
-3. Pass it to the action in `.github/workflows/test.yml`:
+1. 到 <https://codecov.io> 用 GitHub 登入，把這個 repository 加進去。
+2. 把 upload token 存成 `CODECOV_TOKEN` repository secret。
+3. 在 `.github/workflows/test.yml` 把 token 傳給 action：
 
 ```yaml
     - name: Upload coverage reports to Codecov
@@ -109,51 +119,49 @@ The badges in `README.md` / `READMEJP.md` point at
         token: ${{ secrets.CODECOV_TOKEN }}
 ```
 
-Coverage upload failure does not fail the test job.
+coverage 上傳失敗不會讓 test job 失敗。
 
 ---
 
-## 5. Cutting the first release
+## 5. 發布第一個 release
 
-The `.deb` download links in both READMEs point at `v1.1.0` of **this** repo.
-They are dead until you publish that tag.
+兩份 README 裡的 `.deb` 下載連結指向**本 repo** 的 `v1.1.0`。
+在你把那個 tag 發出去之前，那些連結都是死的。
 
 ```bash
-# 1. Record the release in Debian's changelog. The trailer must be YOU —
-#    existing entries belong to the original author and stay untouched.
-#    (dch is in the devscripts package.)
+# 1. 在 Debian changelog 記錄這次發布。trailer 必須是「你」—
+#    既有的 entry 屬於原作者，不要動。
+#    （dch 在 devscripts 套件裡。）
 dch --newversion 1.2.0 --distribution unstable "Describe your changes"
 
-# 2. Keep the CLI string in sync — cmd/version.go hardcodes the version twice,
-#    and cmd/version_test.go asserts on it.
-#    Update all three, then:
+# 2. 同步 CLI 字串 — cmd/version.go 硬編碼了版本號兩次，
+#    cmd/version_test.go 也對它做斷言。
+#    三處都改完之後：
 go test ./cmd/...
 
-# 3. Tag and push — this is what fires release.yml.
+# 3. 打 tag 並推上去 — 這才是觸發 release.yml 的動作。
 git tag v1.2.0
 git push origin v1.2.0
 ```
 
-Update the `wget` URLs in `README.md` and `READMEJP.md` to the new version.
+記得把 `README.md` 和 `READMEJP.md` 裡的 `wget` 網址改成新版本號。
 
-### Dry-running the pipeline
+### 試跑整條 pipeline
 
-`dockerfile.build` documents a throwaway tag for testing CI without publishing a
-real version:
+`dockerfile.build` 裡記載了一個拋棄式 tag，可以在不發布正式版本的情況下測 CI：
 
 ```bash
 git tag v.dev && git push origin v.dev
-# ... inspect the Actions run ...
+# ... 到 Actions 頁面檢查執行結果 ...
 git tag -d v.dev && git push origin --delete v.dev
 ```
 
 ---
 
-## 6. Local test runs
+## 6. 本機跑測試
 
-Unit tests cannot compile on Windows — `initializer/sudoersVerify.go` uses
-`syscall.Stat_t`, which is Unix-only. Use WSL, a Linux box, or the test-env
-container:
+單元測試**在 Windows 上無法編譯** — `initializer/sudoersVerify.go` 用到
+`syscall.Stat_t`，那是 Unix-only 的型別。請用 WSL、Linux 機器，或 test-env container：
 
 ```bash
 GOOS=linux GOARCH=amd64 go build -buildvcs=false -o /tmp/torcontroller .
@@ -164,13 +172,12 @@ go test ./...
 
 ## Upstream
 
-`upstream` remote tracks the original project for diffing and cherry-picking:
+`upstream` remote 用來追蹤原專案，方便 diff 和 cherry-pick：
 
 ```bash
 git fetch upstream
 git log --oneline upstream/main
 ```
 
-It is configured with `tagOpt = --no-tags` on purpose: upstream's `v*` tags would
-otherwise land locally and a `git push --tags` would fire `release.yml` against
-commits that are not in this fork's history.
+它被刻意設定成 `tagOpt = --no-tags`：否則上游的 `v*` tag 會被抓進本地，
+之後一個 `git push --tags` 就會拿「不在本 fork 歷史中的 commit」觸發 `release.yml`。
