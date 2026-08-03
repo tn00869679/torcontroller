@@ -1,7 +1,7 @@
 Source: torcontroller
 Section: net
 Priority: optional
-Maintainer: Darren <tn00869679@gmail.com>
+Maintainer: Darren <39792735+tn00869679@users.noreply.github.com>
 Build-Depends: debhelper-compat (= 12)
 Standards-Version: 4.6.2
 Homepage: https://github.com/tn00869679/torcontroller

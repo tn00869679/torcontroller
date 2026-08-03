@@ -1,11 +1,11 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Torcontroller
-Upstream-Contact: Darren <tn00869679@gmail.com>
+Upstream-Contact: Darren <39792735+tn00869679@users.noreply.github.com>
 Source: https://github.com/tn00869679/torcontroller
 
 Files: *
 Copyright: 2023 Seikan Chin <seikanchintw@gmail.com>
-           2026 Darren <tn00869679@gmail.com>
+           2026 Darren <39792735+tn00869679@users.noreply.github.com>
 License: Apache-2.0
  On Debian systems, the full text of the Apache License, Version 2.0
  can be found in the file `/usr/share/common-licenses/Apache-2.0`.
