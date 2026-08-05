@@ -8,6 +8,11 @@ on:
 jobs:
   build-and-release:
     strategy:
+      # Serialised on purpose. Both matrix legs run "create the release if it
+      # does not exist"; in parallel they can both observe "missing" and race,
+      # leaving one leg to fail with 422 already_exists. amd64 finishes first
+      # and creates the release, so arm64 always takes the existing-release path.
+      max-parallel: 1
       matrix:
         arch: [amd64, arm64]
     runs-on: ubuntu-22.04
