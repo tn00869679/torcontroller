@@ -12,18 +12,39 @@ Repository：`tn00869679/torcontroller`
 `.github/workflows/release.yml` 透過 `scripts/build_and_sign.sh` 對 `.deb` 簽章。
 該腳本是 `set -e`，找不到金鑰會直接中止，所以**沒有這把金鑰就無法發布 release**。
 
+> **在 WSL / Linux shell 裡執行，不要用 PowerShell。** Windows PowerShell 的 `>`
+> 重導向會寫出帶 BOM 的檔案，那三個位元組會讓 CI 端的 `gpg --batch --import`
+> 以 `no valid OpenPGP data found` 失敗 —— 而檔案肉眼看起來完全正常。
+> `shred` 在 Windows 也不存在。
+
 ```bash
+# gpg 2.x 需要 pinentry 才能輸入 passphrase，而 pinentry-curses 在視窗太小時
+# 會以 "Screen or window too small - skipped" 中止。改走 loopback 讓 gpg 直接
+# 在終端機行內詢問，繞開對話框：
+echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+gpgconf --kill gpg-agent
+export GPG_TTY=$(tty)
+
 # 產生金鑰 — 選 RSA 4096。必須設 passphrase（腳本會餵一組進去）。
-gpg --full-generate-key
+gpg --pinentry-mode loopback --full-generate-key
 
 # 查出 key ID
 gpg --list-secret-keys --keyid-format=long
 #   sec   rsa4096/ABCD1234EF567890 2026-08-02 [SC]
-#         <-- long key ID 就是 ABCD1234EF567890
+#         6032ECF9AC84418EB1FDDF70ABCD1234EF567890
+#         <-- long key ID 是 ABCD1234EF567890，底下那行是完整指紋，兩者都可用
 
 # 以 ASCII armor 格式匯出私鑰。
 # 注意輸出路徑在 repo 之外 — 見下方警告。
-gpg --armor --export-secret-keys ABCD1234EF567890 > ~/torcontroller-gpg-private.asc
+gpg --armor --pinentry-mode loopback --export-secret-keys ABCD1234EF567890 > ~/torcontroller-gpg-private.asc
+```
+
+匯出這一步會提示 `Enter passphrase:`，**同時也是密碼正確與否的唯一驗證機會** ——
+密碼錯就會失敗。若當初是在壞掉的 pinentry 裡輸入、已記不得，直接砍掉重產：
+
+```bash
+gpg --batch --yes --delete-secret-keys <KEYID>
+gpg --batch --yes --delete-keys <KEYID>
 ```
 
 > **絕對不要把私鑰匯出到這個 repo 的目錄裡。** 本 repo 是公開的。
@@ -31,6 +52,22 @@ gpg --armor --export-secret-keys ABCD1234EF567890 > ~/torcontroller-gpg-private.
 > 匯出到 `~` 底下，貼進 GitHub secret 之後立刻刪除。
 > （`release.yml` 會在 CI 執行期間自行於 workspace 產生 `.env` 與 `private-key.asc`，
 > 那是 runner 上的暫時檔案，跟你本機無關。）
+
+### 把私鑰貼進 GitHub
+
+私鑰有上百行 base64。**不要用滑鼠從終端機拖曳選取** —— 視窗較窄時長行會折行顯示，
+某些選取模式會把折行變成真的換行字元，貼出來的金鑰就壞了，而且不會有任何提示，
+要等 CI 跑 release 才爆。從 WSL 直接送進 Windows 剪貼簿：
+
+```bash
+cat ~/torcontroller-gpg-private.asc | clip.exe
+```
+
+沒有輸出就是成功。到 GitHub 的 secret 欄位 Ctrl+V 即可。貼完清掉剪貼簿：
+
+```bash
+echo -n "" | clip.exe
+```
 
 到 Settings → Secrets and variables → Actions 新增三個 repository secret：
 
@@ -115,6 +152,7 @@ docker buildx build --platform linux/amd64,linux/arm64 \
 ```yaml
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
+      continue-on-error: true
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 ```
@@ -125,8 +163,8 @@ coverage 上傳失敗不會讓 test job 失敗。
 
 ## 5. 發布第一個 release
 
-兩份 README 裡的 `.deb` 下載連結指向**本 repo** 的 `v1.1.0`。
-在你把那個 tag 發出去之前，那些連結都是死的。
+v1.1.0 已經發布，兩份 README 的下載連結目前有效。以下是**下一次**發版的流程。
+每次發版都要讓 changelog 版本、`cmd/version.go` 的字串、git tag 與 README 網址四者一致。
 
 ```bash
 # 1. 在 Debian changelog 記錄這次發布。trailer 必須是「你」—
