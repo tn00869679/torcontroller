@@ -101,7 +101,15 @@ iptables -t nat -L >/dev/null 2>&1 || abort "no NET_ADMIN; run with --cap-add=NE
 for tool in curl tcpdump dig tor getent; do
     command -v "$tool" >/dev/null 2>&1 || abort "missing required tool: $tool"
 done
-ok "root, NET_ADMIN and required tools present"
+
+# Prove the binary runs here before asserting anything about what it does. A
+# binary built against a newer libc than this image carries fails at every
+# invocation, which otherwise reads as a dozen broken features rather than one
+# broken build.
+if ! "$BINARY" version >/dev/null 2>&1; then
+    abort "the binary does not run in this image: $("$BINARY" version 2>&1 | head -1)"
+fi
+ok "root, NET_ADMIN, required tools, and a binary that runs here"
 
 mkdir -p "$CONFIG_DIR" /var/log/tor
 cp /repo/initializer/templates/tor/torrc "$TORRC"

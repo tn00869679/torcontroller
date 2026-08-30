@@ -26,7 +26,6 @@ override_dh_fixperms:
 	dh_fixperms
 	chmod 755 debian/torcontroller/usr/bin/torcontroller
 	chmod 644 debian/torcontroller/usr/share/torcontroller/defaults/torcontroller.yml
-	chmod 644 debian/torcontroller/usr/share/torcontroller/defaults/tor.service
 	chmod 644 debian/torcontroller/usr/share/torcontroller/defaults/privoxy.service
 	chmod 644 debian/torcontroller/usr/share/torcontroller/defaults/tor/torrc
 	chmod 644 debian/torcontroller/usr/share/torcontroller/defaults/privoxy/config
