@@ -61,6 +61,35 @@ HashedControlPassword 16:7F7AC11D9E823EE460F1630CF5F31D1C45E733DE248867000A347C2
 CookieAuthentication 1
 CookieAuthFile /var/lib/tor/control.authcookie
 
+############### torcontroller transparent proxy ####################
+##
+## torcontroller redirects every outbound TCP connection and every DNS
+## query into the ports below. Removing any of them leaves the iptables
+## rules pointing at a port nothing listens on, which takes the machine
+## offline until `torcontroller stop` runs.
+##
+## TransPort accepts connections that iptables redirected here. Unlike
+## SocksPort it needs no SOCKS handshake, which is what lets arbitrary
+## protocols -- not just HTTP -- travel through Tor.
+TransPort 127.0.0.1:9040
+TransPort [::1]:9041
+
+## DNSPort answers the UDP queries redirected from port 53. Without it
+## the resolver is reached directly and every hostname you visit is
+## exposed to the local network, even though the traffic itself is
+## anonymous.
+DNSPort 5353
+
+## Hand out an address from a private range for every hostname resolved
+## through DNSPort, then route connections to those addresses back into
+## TransPort. This keeps Tor in charge of the name-to-address mapping.
+## `AutomapHostsSuffixes .` widens the default (.onion,.exit) to every
+## name; without it ordinary hostnames resolve to their real addresses.
+AutomapHostsOnResolve 1
+AutomapHostsSuffixes .
+VirtualAddrNetworkIPv4 10.192.0.0/10
+VirtualAddrNetworkIPv6 [fc00::]/7
+
 ############### This section is just for location-hidden services ###
 
 ## Once you have configured a hidden service, you can look at the

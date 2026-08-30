@@ -27,16 +27,6 @@ else
     cp /usr/share/torcontroller/defaults/privoxy.service /etc/systemd/system/privoxy.service
 fi
 
-if [ -f /etc/systemd/system/tor.service ]; then
-    echo "User-defined tor service found. Leaving existing file untouched."
-    echo "A new version of the configuration file is available: /etc/systemd/system/tor.service.dpkg-new"
-    echo "Please review and merge it into your existing configuration if necessary."
-    cp /usr/share/torcontroller/defaults/tor.service /etc/systemd/system/tor.service.dpkg-new
-else
-    echo "Installing default tor.service..."
-    cp /usr/share/torcontroller/defaults/tor.service /etc/systemd/system/tor.service
-fi
-
 if [ ! -d "$TOR_CONFIG_DIR" ]; then
     echo "Configuration directory does not exist. Creating $TOR_CONFIG_DIR..."
     mkdir -p "$TOR_CONFIG_DIR"

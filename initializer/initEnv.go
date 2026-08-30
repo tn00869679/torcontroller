@@ -8,7 +8,6 @@ import (
 func (i *Initializer) InitializeAllConfig() error {
 	configs := map[string]string{
 		"templates/privoxy.service":         "/etc/systemd/system/privoxy.service",
-		"templates/tor.service":             "/etc/systemd/system/tor.service",
 		"templates/privoxy/config":          "/etc/privoxy/config",
 		"templates/tor/torrc":               "/etc/tor/torrc",
 		"templates/sudoers.d/torcontroller": "/etc/sudoers.d/torcontroller",
@@ -28,9 +27,6 @@ func (i *Initializer) InitializeAllConfig() error {
 	}
 	if err := i.FileSystem.Chmod("/etc/systemd/system/privoxy.service", 0644); err != nil {
 		return fmt.Errorf("failed to set permissions for /etc/systemd/system/privoxy.service: %w", err)
-	}
-	if err := i.FileSystem.Chmod("/etc/systemd/system/tor.service", 0644); err != nil {
-		return fmt.Errorf("failed to set permissions for /etc/systemd/system/tor.service: %w", err)
 	}
 	if err := i.FileSystem.Chmod("/etc/privoxy/config", 0644); err != nil {
 		return fmt.Errorf("failed to set permissions for /etc/privoxy/config: %w", err)

@@ -6,15 +6,6 @@ import (
 	"path/filepath"
 )
 
-// PlaceTorServiceFile places the Tor service systemd file.
-func (i *Initializer) PlaceTorServiceFile() error {
-	content, err := i.Templates.ReadFile("templates/tor.service")
-	if err != nil {
-		return fmt.Errorf("failed to read tor service template: %w", err)
-	}
-	return i.writeServiceFile("/etc/systemd/system/tor.service", content)
-}
-
 // PlacePrivoxyServiceFile places the Privoxy service systemd file.
 func (i *Initializer) PlacePrivoxyServiceFile() error {
 	content, err := i.Templates.ReadFile("templates/privoxy.service")

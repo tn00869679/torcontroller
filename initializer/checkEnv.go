@@ -51,19 +51,15 @@ func CheckEnvironment(fix bool) {
 		}
 	}
 
-	// Tor Service File Check
+	// Tor Service File Check. The unit belongs to Debian's tor package:
+	// it drops privileges to debian-tor and creates /run/tor, and the
+	// transparent proxy rules depend on both. Writing our own over it is
+	// what left Tor running as root, unable to open its data directory.
 	if initializer.CheckTorService() {
 		fmt.Println("- Tor Service [OK]")
 	} else {
 		fmt.Println("- Tor Service [MISSING]")
-		if fix {
-			fmt.Println("  -> Attempting to place Tor Service...")
-			if err := initializer.PlaceTorServiceFile(); err != nil {
-				fmt.Printf("  [ERROR] Failed to place Tor Service: %v\n", err)
-			} else {
-				fmt.Println("  [INFO] Tor Service placed successfully.")
-			}
-		}
+		fmt.Println("  -> Reinstall it with: apt-get install --reinstall tor")
 	}
 
 	// Privoxy Service File Check
