@@ -83,6 +83,29 @@ func (h *CommandHandler) VerifyTorrcMatchesProxyConfig(cfg ProxyConfig, torrcPat
 	return nil
 }
 
+// DefaultCookieAuthPath is where Debian's tor-service-defaults-torrc puts the
+// control cookie when torrc does not say otherwise.
+const DefaultCookieAuthPath = "/run/tor/control.authcookie"
+
+// CookieAuthPath reports where Tor writes the control authentication cookie.
+//
+// The path used to be hardcoded to /var/lib/tor/control.authcookie, which
+// happened to work only because the shipped torrc overrides it there. Anyone
+// running Debian's stock torrc, where the cookie lives under /run/tor, found
+// switch and traffic failing at the read with nothing pointing at the cause.
+// Reading the value keeps the code and the configuration from drifting apart.
+func (h *CommandHandler) CookieAuthPath(torrcPath string) (string, error) {
+	contents, err := h.FileSystem.ReadFile(torrcPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read %s: %w", torrcPath, err)
+	}
+
+	if path, ok := parseTorrcDirectives(string(contents))["CookieAuthFile"]; ok {
+		return path, nil
+	}
+	return DefaultCookieAuthPath, nil
+}
+
 // parseTorrcDirectives collects the last value seen for each directive, which
 // is the one Tor itself honours for these settings.
 func parseTorrcDirectives(contents string) map[string]string {

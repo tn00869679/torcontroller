@@ -1,6 +1,7 @@
 package controller_test
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -141,6 +142,52 @@ func TestSettingsOverrideTheDefaultsWhenPresent(t *testing.T) {
 	// The IPv6 exclusions were not set, so they keep their defaults.
 	if len(cfg.ExcludedNetsIPv6) == 0 {
 		t.Error("unset lists should keep their defaults rather than becoming empty")
+	}
+}
+
+// The path was hardcoded to /var/lib/tor, which only worked because the
+// shipped torrc overrides it there. Reading the value keeps the code and the
+// configuration from drifting apart.
+func TestCookiePathComesFromTorrc(t *testing.T) {
+	handler := handlerWithTorrc("CookieAuthFile /var/lib/tor/control.authcookie\n")
+
+	path, err := handler.CookieAuthPath("/etc/tor/torrc")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if path != "/var/lib/tor/control.authcookie" {
+		t.Errorf("expected the path from torrc, got %s", path)
+	}
+}
+
+// Debian's stock torrc has no CookieAuthFile; its defaults file puts the
+// cookie under /run/tor. Guessing /var/lib/tor there is what made switch and
+// traffic fail with nothing pointing at the cause.
+func TestCookiePathFallsBackToTheDebianDefault(t *testing.T) {
+	handler := handlerWithTorrc("ControlPort 9051\nCookieAuthentication 1\n")
+
+	path, err := handler.CookieAuthPath("/etc/tor/torrc")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if path != controller.DefaultCookieAuthPath {
+		t.Errorf("expected %s, got %s", controller.DefaultCookieAuthPath, path)
+	}
+}
+
+// A shipped hash would be the same secret on every installation, so anyone
+// knowing the plaintext could drive the control port of any machine running
+// this package.
+func TestShippedTorrcCarriesNoControlPassword(t *testing.T) {
+	contents, err := os.ReadFile("../../initializer/templates/tor/torrc")
+	if err != nil {
+		t.Fatalf("could not read the shipped torrc: %v", err)
+	}
+
+	for _, line := range strings.Split(string(contents), "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), "HashedControlPassword") {
+			t.Errorf("the shipped torrc must not carry a password hash, found: %s", line)
+		}
 	}
 }
 

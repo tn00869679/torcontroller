@@ -34,6 +34,11 @@ func TestGetTorTrafficMetrics(t *testing.T) {
 	mockRunner := &MockCommandRunner{}
 	mockFileSystem := &MockFileSystem{
 		Files: map[string]*MockFileInfo{
+			// The cookie path is resolved from torrc, so the mock has to
+			// provide one that points at the cookie mocked below.
+			"/etc/tor/torrc": {
+				content: []byte("CookieAuthFile /var/lib/tor/control.authcookie\n"),
+			},
 			"/var/lib/tor/control.authcookie": {
 				content: decodedCookie, // Use the raw mock cookie content
 				mode:    0644,          // Typical file mode

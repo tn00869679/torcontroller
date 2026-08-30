@@ -40,9 +40,8 @@ if [ -f /etc/tor/torrc ]; then
     cp /usr/share/torcontroller/defaults/tor/torrc /etc/tor/torrc.dpkg-new
 else
     cp /usr/share/torcontroller/defaults/tor/torrc /etc/tor/torrc
-    torcontroller newpassword
-    echo "[INFO] Default Tor password has been set to a randomly generated value."
-    echo "[INFO] Please use torcontroller cli 'torcontroller newpassword <your-tor-newpassword>' to change it if needed."
+    echo "[INFO] Tor control access uses the authentication cookie; no password is set."
+    echo "[INFO] Run 'torcontroller newpassword' only if another control-port client needs one."
 fi
 
 if [ ! -d "$PRIVOXY_CONFIG_DIR" ]; then

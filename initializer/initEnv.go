@@ -35,11 +35,6 @@ func (i *Initializer) InitializeAllConfig() error {
 		return fmt.Errorf("failed to set permissions for /etc/torcontroller/torcontroller.yml: %w", err)
 	}
 
-	// Execute torcontroller newpassword
-	if err := i.GenerateNewPassword(); err != nil {
-		return fmt.Errorf("failed to generate new password: %w", err)
-	}
-
 	fmt.Println("[INFO] All configurations initialized successfully.")
 	return nil
 }
@@ -66,12 +61,3 @@ func (i *Initializer) WriteTemplateToFile(templatePath, destPath string) error {
 	return nil
 }
 
-func (i *Initializer) GenerateNewPassword() error {
-	cmd := []string{"torcontroller", "newpassword"}
-	if _, err := i.CommandRunner.Run(cmd[0], cmd[1:]...); err != nil {
-		return fmt.Errorf("failed to execute torcontroller newpassword: %w", err)
-	}
-
-	fmt.Println("[INFO] New password generated successfully.")
-	return nil
-}

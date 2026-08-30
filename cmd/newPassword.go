@@ -45,8 +45,34 @@ var NewPasswordCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Println("New password successfully set.")
+		// Writing torrc changes nothing until Tor re-reads it. Without this the
+		// command reported success while the running daemon still accepted only
+		// the old password, and the new one worked no earlier than the next
+		// reboot.
+		if err := reloadTor(); err != nil {
+			fmt.Printf("Password written to %s but Tor could not be reloaded: %v\n", torrcPath, err)
+			fmt.Println("Run 'sudo systemctl reload tor' to apply it.")
+			return
+		}
+
+		fmt.Println("New password successfully set and applied.")
+		fmt.Println("Note: torcontroller itself authenticates with the control cookie.")
+		fmt.Println("This password is only for other clients of Tor's control port.")
 	},
+}
+
+// reloadTor makes the running daemon re-read torrc. Debian's unit maps reload
+// to SIGHUP, which applies the new HashedControlPassword without dropping
+// established circuits the way a restart would.
+func reloadTor() error {
+	var errBuf bytes.Buffer
+	cmd := exec.Command("sudo", "systemctl", "reload", "tor")
+	cmd.Stderr = &errBuf
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("%s: %w", strings.TrimSpace(errBuf.String()), err)
+	}
+	return nil
 }
 
 // hashPassword generates a hashed password using `tor --hash-password`.

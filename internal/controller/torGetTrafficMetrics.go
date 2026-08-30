@@ -16,11 +16,17 @@ func (h *CommandHandler) GetTorTrafficMetrics() (uint, uint, error) {
 	}
 	defer conn.Close()
 
-	// Read the control.authcookie and check the length.
-	cookie, err := h.FileSystem.ReadFile("/var/lib/tor/control.authcookie")
+	// Ask torrc where the cookie is rather than assuming: the location differs
+	// between our torrc and Debian's stock one.
+	cookiePath, err := h.CookieAuthPath(TorrcPath)
 	if err != nil {
-		h.Logger.Printf("[ERROR] Failed to read control.authcookie: %v", err)
-		return 0, 0, fmt.Errorf("failed to read control.authcookie: %v", err)
+		h.Logger.Printf("[ERROR] %v", err)
+		return 0, 0, err
+	}
+	cookie, err := h.FileSystem.ReadFile(cookiePath)
+	if err != nil {
+		h.Logger.Printf("[ERROR] Failed to read %s: %v", cookiePath, err)
+		return 0, 0, fmt.Errorf("failed to read %s: %w", cookiePath, err)
 	}
 	if len(cookie) != 32 {
 		h.Logger.Printf("[ERROR] Invalid control.authcookie length: expected 32 bytes, got %d", len(cookie))

@@ -17,11 +17,17 @@ func (h *CommandHandler) SwitchTorCircuit() error {
 	}
 	defer conn.Close()
 
-	// read control.authcookie
-	cookie, err := h.FileSystem.ReadFile("/var/lib/tor/control.authcookie")
+	// Ask torrc where the cookie is rather than assuming: the location differs
+	// between our torrc and Debian's stock one.
+	cookiePath, err := h.CookieAuthPath(TorrcPath)
 	if err != nil {
-		h.Logger.Printf("[ERROR] Failed to read control.authcookie: %v", err)
-		return fmt.Errorf("failed to read control.authcookie: %v", err)
+		h.Logger.Printf("[ERROR] %v", err)
+		return err
+	}
+	cookie, err := h.FileSystem.ReadFile(cookiePath)
+	if err != nil {
+		h.Logger.Printf("[ERROR] Failed to read %s: %v", cookiePath, err)
+		return fmt.Errorf("failed to read %s: %w", cookiePath, err)
 	}
 
 	// Send the AUTHENTICATE command

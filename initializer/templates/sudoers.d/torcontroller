@@ -1,2 +1,31 @@
-# Allow torcontroller to manage Tor and network settings
-%torcontroller ALL=(ALL) NOPASSWD: /bin/systemctl start tor, /bin/systemctl stop tor, /bin/systemctl restart tor, /sbin/iptables
+# Commands torcontroller runs with elevated privileges.
+#
+# Listed by executable rather than by full command line. The firewall commands
+# take arguments built at runtime from the configuration, so an exact list
+# cannot be written down, and pinning the arguments would buy nothing anyway:
+# anyone who may run iptables at all may write any rule they like.
+#
+# The previous list allowed only `systemctl start|stop|restart tor` and
+# iptables, while the code also needs systemctl status, privoxy was managed the
+# same way, and the transparent proxy added ip6tables and ip. Members of the
+# torcontroller group were therefore prompted for a password mid-run and the
+# command failed; only root ever worked.
+%torcontroller ALL=(ALL) NOPASSWD: \
+    /bin/systemctl, \
+    /usr/bin/systemctl, \
+    /sbin/iptables, \
+    /usr/sbin/iptables, \
+    /sbin/ip6tables, \
+    /usr/sbin/ip6tables, \
+    /sbin/ip, \
+    /usr/sbin/ip, \
+    /bin/ip, \
+    /usr/bin/id, \
+    /usr/bin/tor, \
+    /usr/sbin/visudo, \
+    /usr/bin/chmod, \
+    /bin/chmod, \
+    /usr/bin/chown, \
+    /bin/chown, \
+    /usr/bin/mv, \
+    /bin/mv

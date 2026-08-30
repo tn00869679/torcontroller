@@ -56,8 +56,16 @@
 ControlPort 9051
 ## If you enable the controlport, be sure to enable one of these
 ## authentication methods, to prevent attackers from accessing it.
-HashedControlPassword 16:7F7AC11D9E823EE460F1630CF5F31D1C45E733DE248867000A347C25AB
-
+##
+## Cookie authentication is the only method torcontroller uses, and it is
+## enough on its own: the cookie is regenerated on every start and readable
+## only by root and the tor user.
+##
+## No HashedControlPassword is shipped here on purpose. A hash baked into the
+## package would be the same secret on every installation, so anyone knowing
+## the plaintext could drive the control port of any machine running this.
+## `torcontroller newpassword` adds one if you need password authentication
+## for another control-port client.
 CookieAuthentication 1
 CookieAuthFile /var/lib/tor/control.authcookie
 
