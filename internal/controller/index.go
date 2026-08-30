@@ -41,13 +41,23 @@ func HandleConnection(conn net.Conn, socketPath string, listener net.Listener) e
 			return err
 		}
 
-		if err := handler.ApplyIptablesIPv4(); err != nil {
+		torUID, err := handler.TorUID()
+		if err != nil {
 			handler.Logger.Printf("[ERROR] %v", err)
 			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
 			return err
 		}
 
-		if err := handler.ApplyIptablesIPv6Reject(); err != nil {
+		// Nothing is redirected until Tor is confirmed to be listening on the
+		// ports the rules point at. Installing them first would take the
+		// network down with no error to explain why.
+		if err := handler.VerifyTorProxyPorts(); err != nil {
+			handler.Logger.Printf("[ERROR] %v", err)
+			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
+			return err
+		}
+
+		if err := handler.ApplyTransparentProxy(DefaultProxyConfig(torUID)); err != nil {
 			handler.Logger.Printf("[ERROR] %v", err)
 			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
 			return err
@@ -101,13 +111,10 @@ func HandleConnection(conn net.Conn, socketPath string, listener net.Listener) e
 		handler.Logger.Printf("[INFO] Traffic Read: %d bytes, Traffic Written: %d bytes", readTraffic, writtenTraffic)
 		return nil
 	case "stop":
-		if err := handler.ClearIptablesIPv6Reject(); err != nil {
-			handler.Logger.Printf("[ERROR] %v", err)
-			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
-			return err
-		}
-
-		if err := handler.ClearIptablesIPv4(); err != nil {
+		// Remove the rules before stopping Tor. The other order leaves a
+		// window in which every connection is redirected at a daemon that is
+		// already gone.
+		if err := handler.ClearTransparentProxy(); err != nil {
 			handler.Logger.Printf("[ERROR] %v", err)
 			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
 			return err
