@@ -90,6 +90,23 @@ else
     cp /usr/share/torcontroller/defaults/torcontroller.yml /etc/torcontroller/torcontroller.yml
 fi
 
+# Bring an installation made by an earlier version in line with what the
+# transparent proxy needs. On a fresh install the files above are already
+# current and this does nothing.
+#
+# A failure here is deliberately not a failure of the install. Leaving the
+# package half-configured is harder to recover from than leaving the feature
+# switched off, and `torcontroller start` already refuses to install any rules
+# while torrc lacks the ports they target -- so an unmigrated system loses the
+# feature, not the network.
+if torcontroller migrate; then
+    :
+else
+    echo "[WARN] Could not update the configuration from the previous version."
+    echo "[WARN] torcontroller start will refuse to run until this is resolved."
+    echo "[WARN] Run 'sudo torcontroller migrate' to see what failed."
+fi
+
 echo "postinst script finished."
 
 #DEBHELPLER#

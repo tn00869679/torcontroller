@@ -73,6 +73,7 @@ func InitCommands() *cobra.Command {
 		SwitchCmd,
 		StopCmd,
 		NewPasswordCmd,
+		MigrateCmd,
 	)
 
 	CheckCmd.Flags().BoolVarP(&fixFlag, "fix", "f", false, "Fix missing or incorrect results")
