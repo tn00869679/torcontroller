@@ -1,3 +1,34 @@
 rate_limit:
   min_read_rate: 10000
   min_write_rate: 5000
+
+# Transparent proxy settings. Every key is optional: leave one out and the
+# built-in default applies. Deleting the whole block is fine.
+proxy:
+  # These two must match VirtualAddrNetworkIPv4 and VirtualAddrNetworkIPv6 in
+  # /etc/tor/torrc. Change one without the other and `torcontroller start`
+  # refuses to run, because a mismatch would let traffic to every resolved host
+  # leave Tor without anything reporting an error.
+  virtual_net_ipv4: 10.192.0.0/10
+
+  # The default covers fd00::/8, where real unique-local networks live. If this
+  # machine has an IPv6 LAN, narrow this to a range you do not use -- otherwise
+  # those LAN addresses are routed into Tor and become unreachable.
+  virtual_net_ipv6: fc00::/7
+
+  # Destinations that stay off Tor. Add anything local that is not covered
+  # here, or traffic to it is sent through Tor and fails.
+  excluded_nets:
+    - 127.0.0.0/8
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+  excluded_nets_ipv6:
+    - ::1/128
+    - fe80::/10
+
+  # Tor answers AAAA queries with virtual addresses whether or not this is on,
+  # so turning it off is a fallback for hosts where the IPv6 path misbehaves,
+  # not a way to avoid IPv6. With it off, applications that prefer the AAAA
+  # answer may fail to connect.
+  enable_ipv6: true

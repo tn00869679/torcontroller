@@ -48,7 +48,16 @@ func HandleConnection(conn net.Conn, socketPath string, listener net.Listener) e
 			return err
 		}
 
-		proxyConfig := DefaultProxyConfig(torUID)
+		proxyConfig := ProxyConfigFromSettings(torUID, handler.Config)
+
+		// A range that disagrees with torrc redirects the wrong addresses, so
+		// resolved hosts keep connecting while quietly leaving Tor. Nothing
+		// errors on its own, which is why this is checked up front.
+		if err := handler.VerifyTorrcMatchesProxyConfig(proxyConfig, TorrcPath); err != nil {
+			handler.Logger.Printf("[ERROR] %v", err)
+			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
+			return err
+		}
 
 		// Nothing is redirected until Tor is confirmed to be listening on the
 		// ports the rules point at. Installing them first would take the
@@ -116,7 +125,7 @@ func HandleConnection(conn net.Conn, socketPath string, listener net.Listener) e
 		// Remove the rules before stopping Tor. The other order leaves a
 		// window in which every connection is redirected at a daemon that is
 		// already gone.
-		if err := handler.ClearTransparentProxy(DefaultProxyConfig("")); err != nil {
+		if err := handler.ClearTransparentProxy(ProxyConfigFromSettings("", handler.Config)); err != nil {
 			handler.Logger.Printf("[ERROR] %v", err)
 			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
 			return err
