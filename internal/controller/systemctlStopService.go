@@ -49,7 +49,3 @@ func (h *CommandHandler) StopTorService() error {
 	return h.StopServiceFactory("tor")
 }
 
-// StopPrivoxyService stops the Privoxy service using the factory method
-func (h *CommandHandler) StopPrivoxyService() error {
-	return h.StopServiceFactory("privoxy")
-}

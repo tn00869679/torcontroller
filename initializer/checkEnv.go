@@ -66,7 +66,9 @@ func CheckEnvironment(fix bool) {
 	if initializer.CheckPrivoxyService() {
 		fmt.Println("- Privoxy Service [OK]")
 	} else {
-		fmt.Println("- Privoxy Service [MISSING]")
+		fmt.Println("- Privoxy Service [NOT INSTALLED]")
+		fmt.Println("  -> Optional. Traffic goes to Tor directly; install privoxy")
+		fmt.Println("     only to filter it, then set http_proxy=127.0.0.1:8118")
 		if fix {
 			fmt.Println("  -> Attempting to place Privoxy Service...")
 			if err := initializer.PlacePrivoxyServiceFile(); err != nil {

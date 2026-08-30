@@ -35,11 +35,11 @@ func HandleConnection(conn net.Conn, socketPath string, listener net.Listener) e
 			return err
 		}
 
-		if err := handler.StartPrivoxyService(); err != nil {
-			handler.Logger.Printf("[ERROR] %v", err)
-			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
-			return err
-		}
+		// Privoxy is no longer started here. Nothing is redirected into it now
+		// that connections go to Tor's TransPort, so running it would leave an
+		// idle daemon that looks load-bearing. It remains available as an
+		// explicit proxy for anyone who wants its filtering: point
+		// http_proxy at 127.0.0.1:8118 and it forwards through Tor.
 
 		torUID, err := handler.TorUID()
 		if err != nil {
@@ -130,11 +130,8 @@ func HandleConnection(conn net.Conn, socketPath string, listener net.Listener) e
 			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
 			return err
 		}
-		if err := handler.StopPrivoxyService(); err != nil {
-			handler.Logger.Printf("[ERROR] %v", err)
-			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
-			return err
-		}
+		// Privoxy is left alone: start no longer runs it, so stopping it here
+		// would kill a daemon the operator started for their own use.
 		if err := handler.StopTorService(); err != nil {
 			handler.Logger.Printf("[ERROR] %v", err)
 			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))

@@ -9,13 +9,13 @@ Homepage: https://github.com/tn00869679/torcontroller
 Package: torcontroller
 Architecture: amd64 arm64
 Depends: ${shlibs:Depends},
-         privoxy(>= 3.0.28), privoxy(<< 3.1),
          procps,
          systemctl (>= 1.4),
          tor(>= 0.4.2.7), tor(<< 0.5),
          iptables,
          sudo,
          ${misc:Depends}
+Suggests: privoxy(>= 3.0.28)
 Pre-Depends: ${misc:Pre-Depends}
 Description: This package is a simple cli controller to switch network 
  to provide a CLI for managing and switching your network through 

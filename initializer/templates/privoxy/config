@@ -1507,9 +1507,7 @@ forwarded-connect-retries 0
 #
 #  Examples:
 #
-#      accept-intercepted-requests 1
-#
-accept-intercepted-requests 1
+#      #
 #
 #  6.2. allow-cgi-request-crunching
 #  =================================

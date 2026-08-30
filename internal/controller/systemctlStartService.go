@@ -65,7 +65,3 @@ func (h *CommandHandler) StartTorService() error {
 	return h.StartServiceFactory("tor")
 }
 
-// StartPrivoxyService starts the Privoxy service using the factory method
-func (h *CommandHandler) StartPrivoxyService() error {
-	return h.StartServiceFactory("privoxy")
-}
