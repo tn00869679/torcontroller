@@ -48,16 +48,18 @@ func HandleConnection(conn net.Conn, socketPath string, listener net.Listener) e
 			return err
 		}
 
+		proxyConfig := DefaultProxyConfig(torUID)
+
 		// Nothing is redirected until Tor is confirmed to be listening on the
 		// ports the rules point at. Installing them first would take the
 		// network down with no error to explain why.
-		if err := handler.VerifyTorProxyPorts(); err != nil {
+		if err := handler.VerifyTorProxyPorts(proxyConfig); err != nil {
 			handler.Logger.Printf("[ERROR] %v", err)
 			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
 			return err
 		}
 
-		if err := handler.ApplyTransparentProxy(DefaultProxyConfig(torUID)); err != nil {
+		if err := handler.ApplyTransparentProxy(proxyConfig); err != nil {
 			handler.Logger.Printf("[ERROR] %v", err)
 			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
 			return err
@@ -114,7 +116,7 @@ func HandleConnection(conn net.Conn, socketPath string, listener net.Listener) e
 		// Remove the rules before stopping Tor. The other order leaves a
 		// window in which every connection is redirected at a daemon that is
 		// already gone.
-		if err := handler.ClearTransparentProxy(); err != nil {
+		if err := handler.ClearTransparentProxy(DefaultProxyConfig("")); err != nil {
 			handler.Logger.Printf("[ERROR] %v", err)
 			_, _ = conn.Write([]byte(fmt.Sprintf("Error: %v\n", err)))
 			return err

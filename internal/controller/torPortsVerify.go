@@ -21,7 +21,7 @@ const (
 // then dropped, so the machine loses the network with no error anywhere. That
 // is far worse than the feature simply not switching on, which is what
 // returning an error here produces.
-func (h *CommandHandler) VerifyTorProxyPorts() error {
+func (h *CommandHandler) VerifyTorProxyPorts(cfg ProxyConfig) error {
 	checks := []struct {
 		description string
 		procFile    string
@@ -30,6 +30,17 @@ func (h *CommandHandler) VerifyTorProxyPorts() error {
 	}{
 		{"TransPort (redirected TCP)", "/proc/net/tcp", TransPortIPv4, tcpStateListen},
 		{"DNSPort (redirected DNS)", "/proc/net/udp", DNSPortUDP, udpStateUnconn},
+	}
+
+	// The IPv6 listener only matters when the IPv6 rules are going in. Demanding
+	// it otherwise would block hosts that deliberately run IPv4 only.
+	if cfg.EnableIPv6 {
+		checks = append(checks, struct {
+			description string
+			procFile    string
+			port        string
+			state       string
+		}{"TransPort over IPv6", "/proc/net/tcp6", TransPortIPv6, tcpStateListen})
 	}
 
 	var missing []string
