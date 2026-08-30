@@ -1,0 +1,44 @@
+name: Integration Test
+
+# Deliberately not on push. This reaches the live Tor network, so a red run
+# would as often mean "Tor was slow to bootstrap" as "the code is broken", and
+# a test that cries wolf stops being read. Weekly plus on demand keeps it
+# honest without making every push depend on an anonymity network being
+# reachable from a GitHub runner.
+on:
+  workflow_dispatch:
+  schedule:
+    # Mondays, 03:00 UTC.
+    - cron: '0 3 * * 1'
+
+jobs:
+  transparent-proxy:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+
+    steps:
+    - name: Actions Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Golang
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21.13'
+
+    - name: Build the binary under test
+      run: GOOS=linux GOARCH=amd64 go build -buildvcs=false -o torcontroller .
+
+    - name: Run the integration test
+      # NET_ADMIN and NET_RAW are what let the container write nat rules and
+      # capture packets; without them the script aborts in its preconditions
+      # rather than reporting a misleading pass.
+      run: |
+        docker run --rm \
+          --cap-add=NET_ADMIN --cap-add=NET_RAW \
+          -v "$GITHUB_WORKSPACE:/repo:ro" \
+          ghcr.io/tn00869679/torcontroller/torcontroller-test-env:dev \
+          bash -c '
+            apt-get update -qq >/dev/null 2>&1
+            apt-get install -y -qq dnsutils tcpdump >/dev/null 2>&1
+            bash /repo/scripts/integration-test.sh /repo/torcontroller
+          '
